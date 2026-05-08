@@ -1,1 +1,96 @@
 @import "tailwindcss";
+
+:root {
+  --font-anton:    "Anton",               sans-serif;
+  --font-oswald:   "Oswald",              sans-serif;
+  --font-playfair: "Playfair Display",    serif;
+  --font-geist:    "Geist",               sans-serif;
+  --font-mrs:      "Mrs Saint Delafield", cursive;
+  --font-style:    "Style Script",        cursive;
+  --font-great:    "Great Vibes",         cursive;
+  --font-unna:     "Unna",               serif;
+
+  --navy-950: #050d1a;
+  --navy-900: #0a1628;
+  --navy-800: #0f2040;
+  --navy-700: #152b58;
+  --navy-600: #1a3570;
+  --navy-500: #1e3f88;
+  --navy-400: #2952a3;
+  --navy-300: #4a72c4;
+  --navy-200: #7a9fd8;
+  --navy-100: #b8cfee;
+  --navy-50:  #e8f0fb;
+
+  --gold-500: #c9a84c;
+  --gold-400: #d4b96a;
+  --gold-300: #e0cc8e;
+  --gold-100: #f7f0d8;
+
+  --live-bg:       #111110;
+  --live-surface:  #1c1b19;
+  --live-border:   #2e2c28;
+  --live-muted:    #6b6560;
+  --live-text:     #e8e4dc;
+  --live-amber:    #d97706;
+  --live-amber-lt: #fbbf24;
+  --live-rose:     #e11d48;
+  --live-sage:     #4ade80;
+
+  --color-bg:      #f0f4fb;
+  --color-surface: #ffffff;
+  --color-border:  #d0daf0;
+  --color-text:    #0a1628;
+  --color-muted:   #4a6080;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-geist);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-anton    { font-family: var(--font-anton);    }
+.font-oswald   { font-family: var(--font-oswald);   }
+.font-playfair { font-family: var(--font-playfair); }
+.font-geist    { font-family: var(--font-geist);    }
+.font-great    { font-family: var(--font-great);    }
+.font-unna     { font-family: var(--font-unna);     }
+
+/* card list items on mobile — switch table to card layout */
+@media (max-width: 639px) {
+  .mobile-card-table thead { display: none; }
+  .mobile-card-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    gap: 0.25rem;
+  }
+  .mobile-card-table tbody td {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    border: none;
+  }
+  .mobile-card-table tbody td::before {
+    content: attr(data-label);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-muted);
+    min-width: 70px;
+    shrink: 0;
+  }
+}
+
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: var(--navy-50); }
+::-webkit-scrollbar-thumb  { background: var(--navy-200); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--navy-400); }

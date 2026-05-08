@@ -1,6 +1,3 @@
-// Mock data simulating backend responses
-// Replace with real API calls via service layer
-
 let contentIdCounter = 10;
 
 const now = new Date();
@@ -10,7 +7,7 @@ const future = (h) => new Date(now.getTime() + h * 3600000).toISOString();
 export const MOCK_USERS = [
   {
     id: 'u1',
-    name: 'Alice Johnson',
+    name: 'Khushi Sharma',
     email: 'teacher@demo.com',
     password: 'password',
     role: 'teacher',
@@ -18,7 +15,7 @@ export const MOCK_USERS = [
   },
   {
     id: 'u2',
-    name: 'Bob Smith',
+    name: 'Ayush Verma',
     email: 'teacher2@demo.com',
     password: 'password',
     role: 'teacher',
@@ -26,7 +23,7 @@ export const MOCK_USERS = [
   },
   {
     id: 'u3',
-    name: 'Principal Carol',
+    name: 'Harsh Patel',
     email: 'principal@demo.com',
     password: 'password',
     role: 'principal',
@@ -38,7 +35,7 @@ export let MOCK_CONTENT = [
   {
     id: 'c1',
     teacherId: 'u1',
-    teacherName: 'Alice Johnson',
+    teacherName: 'Khushi Sharma',
     title: 'Introduction to Algebra',
     subject: 'Mathematics',
     description: 'Basic algebra concepts for grade 8 students.',
@@ -55,7 +52,7 @@ export let MOCK_CONTENT = [
   {
     id: 'c2',
     teacherId: 'u1',
-    teacherName: 'Alice Johnson',
+    teacherName: 'Khushi Sharma',
     title: 'Photosynthesis Explained',
     subject: 'Biology',
     description: 'How plants make food using sunlight.',
@@ -72,7 +69,7 @@ export let MOCK_CONTENT = [
   {
     id: 'c3',
     teacherId: 'u1',
-    teacherName: 'Alice Johnson',
+    teacherName: 'Khushi Sharma',
     title: 'World War II Overview',
     subject: 'History',
     description: 'Key events of World War II.',
@@ -89,8 +86,8 @@ export let MOCK_CONTENT = [
   {
     id: 'c4',
     teacherId: 'u2',
-    teacherName: 'Bob Smith',
-    title: 'Newton\'s Laws of Motion',
+    teacherName: 'Ayush Verma',
+    title: "Newton's Laws of Motion",
     subject: 'Physics',
     description: 'Understanding the three laws of motion.',
     fileUrl: 'https://picsum.photos/seed/newton/800/600',
@@ -106,7 +103,7 @@ export let MOCK_CONTENT = [
   {
     id: 'c5',
     teacherId: 'u2',
-    teacherName: 'Bob Smith',
+    teacherName: 'Ayush Verma',
     title: 'Chemical Bonding',
     subject: 'Chemistry',
     description: 'Ionic and covalent bonds explained.',
@@ -123,8 +120,8 @@ export let MOCK_CONTENT = [
   {
     id: 'c6',
     teacherId: 'u1',
-    teacherName: 'Alice Johnson',
-    title: 'Shakespeare\'s Hamlet',
+    teacherName: 'Khushi Sharma',
+    title: "Shakespeare's Hamlet",
     subject: 'English',
     description: 'Analysis of Hamlet Act 1.',
     fileUrl: 'https://picsum.photos/seed/hamlet/800/600',
@@ -139,13 +136,12 @@ export let MOCK_CONTENT = [
   },
 ];
 
-// Generate extra items for performance testing (500+ items)
 for (let i = 7; i <= 520; i++) {
   const statuses = ['pending', 'approved', 'rejected'];
   const subjects = ['Mathematics', 'Science', 'English', 'History', 'Physics'];
   const teachers = [
-    { id: 'u1', name: 'Alice Johnson' },
-    { id: 'u2', name: 'Bob Smith' },
+    { id: 'u1', name: 'Khushi Sharma' },
+    { id: 'u2', name: 'Ayush Verma' },
   ];
   const t = teachers[i % 2];
   const status = statuses[i % 3];

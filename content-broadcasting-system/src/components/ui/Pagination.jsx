@@ -10,11 +10,11 @@ export default function Pagination({ page, totalPages, onPrev, onNext, onGoTo })
   }
 
   return (
-    <div className="flex items-center justify-center gap-1 mt-4">
+    <div className="flex items-center justify-center gap-1 mt-4" style={{ fontFamily: 'var(--font-geist)' }}>
       <button
         onClick={onPrev}
         disabled={page === 1}
-        className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="p-2 rounded-lg hover:bg-[var(--navy-50)] text-[var(--navy-600)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label="Previous page"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -22,8 +22,13 @@ export default function Pagination({ page, totalPages, onPrev, onNext, onGoTo })
 
       {pages[0] > 1 && (
         <>
-          <button onClick={() => onGoTo(1)} className="px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100">1</button>
-          {pages[0] > 2 && <span className="px-2 text-gray-400">…</span>}
+          <button
+            onClick={() => onGoTo(1)}
+            className="px-3 py-1.5 rounded-lg text-sm hover:bg-[var(--navy-50)] text-[var(--navy-600)] transition-colors"
+          >
+            1
+          </button>
+          {pages[0] > 2 && <span className="px-2 text-[var(--color-muted)]">…</span>}
         </>
       )}
 
@@ -32,7 +37,9 @@ export default function Pagination({ page, totalPages, onPrev, onNext, onGoTo })
           key={p}
           onClick={() => onGoTo(p)}
           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            p === page ? 'bg-indigo-600 text-white' : 'hover:bg-gray-100 text-gray-700'
+            p === page
+              ? 'bg-[var(--navy-700)] text-white shadow-sm'
+              : 'hover:bg-[var(--navy-50)] text-[var(--navy-700)]'
           }`}
         >
           {p}
@@ -41,15 +48,22 @@ export default function Pagination({ page, totalPages, onPrev, onNext, onGoTo })
 
       {pages[pages.length - 1] < totalPages && (
         <>
-          {pages[pages.length - 1] < totalPages - 1 && <span className="px-2 text-gray-400">…</span>}
-          <button onClick={() => onGoTo(totalPages)} className="px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100">{totalPages}</button>
+          {pages[pages.length - 1] < totalPages - 1 && (
+            <span className="px-2 text-[var(--color-muted)]">…</span>
+          )}
+          <button
+            onClick={() => onGoTo(totalPages)}
+            className="px-3 py-1.5 rounded-lg text-sm hover:bg-[var(--navy-50)] text-[var(--navy-600)] transition-colors"
+          >
+            {totalPages}
+          </button>
         </>
       )}
 
       <button
         onClick={onNext}
         disabled={page === totalPages}
-        className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="p-2 rounded-lg hover:bg-[var(--navy-50)] text-[var(--navy-600)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label="Next page"
       >
         <ChevronRight className="h-4 w-4" />

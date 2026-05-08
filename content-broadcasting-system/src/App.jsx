@@ -87,8 +87,13 @@ export default function App() {
           style: {
             borderRadius: '10px',
             fontSize: '14px',
+            fontFamily: 'var(--font-geist)',
+            background: '#0f2040',
+            color: '#e8f0fb',
+            border: '1px solid #152b58',
           },
-          success: { iconTheme: { primary: '#4f46e5', secondary: '#fff' } },
+          success: { iconTheme: { primary: '#2952a3', secondary: '#e8f0fb' } },
+          error:   { iconTheme: { primary: '#dc2626', secondary: '#e8f0fb' } },
         }}
       />
     </AuthProvider>

@@ -6,10 +6,12 @@ const ContentPreview = memo(function ContentPreview({ fileUrl, fileName, classNa
 
   if (!fileUrl || error) {
     return (
-      <div className={`flex items-center justify-center bg-gray-100 rounded-lg ${className}`}>
-        <div className="text-center text-gray-400 p-4">
-          <ImageOff className="h-8 w-8 mx-auto mb-1" />
-          <p className="text-xs">Preview unavailable</p>
+      <div
+        className={`flex items-center justify-center bg-[var(--navy-50)] rounded-lg border border-[var(--color-border)] ${className}`}
+      >
+        <div className="text-center text-[var(--navy-300)] p-2">
+          <ImageOff className="h-6 w-6 mx-auto mb-0.5" />
+          <p className="text-xs">No preview</p>
         </div>
       </div>
     );

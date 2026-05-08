@@ -1,133 +1,120 @@
-========================================
-  CONTENT BROADCASTING SYSTEM
-  Frontend Notes & Architecture Guide
-========================================
+Content Broadcasting System - Frontend Notes
+============================================
 
-1. PROJECT STRUCTURE
---------------------
-src/
-├── components/
-│   ├── content/          # Content-specific reusable components
-│   │   ├── ContentPreview.jsx      - Lazy-loaded image with error fallback
-│   │   ├── ContentDetailModal.jsx  - Full detail view modal
-│   │   ├── RejectModal.jsx         - Rejection reason modal
-│   │   ├── ScheduleBadge.jsx       - Active/Scheduled/Expired badge
-│   │   └── StatusBadge.jsx         - Pending/Approved/Rejected badge
-│   ├── layout/           # App shell components
-│   │   ├── DashboardLayout.jsx     - Sidebar + main content wrapper
-│   │   └── Sidebar.jsx             - Role-aware navigation sidebar
-│   ├── routing/
-│   │   └── ProtectedRoute.jsx      - Auth + role guard
-│   └── ui/               # Generic reusable UI primitives
-│       ├── Badge.jsx, Button.jsx, Modal.jsx
-│       ├── StatCard.jsx, Pagination.jsx
-│       ├── Spinner.jsx, SkeletonCard.jsx, SkeletonRow.jsx
-│       ├── EmptyState.jsx, ErrorAlert.jsx
-├── context/
-│   └── AuthContext.jsx   - Global auth state (user, login, logout)
-├── hooks/
-│   ├── useAsync.js       - Generic async operation hook
-│   ├── useFetch.js       - Auto-fetch on mount with loading/error/data
-│   └── usePagination.js  - Client-side pagination logic
-├── pages/
-│   ├── LoginPage.jsx
-│   ├── LivePage.jsx                - Public /live/:teacherId page
-│   ├── teacher/
-│   │   ├── TeacherDashboard.jsx
-│   │   ├── UploadContent.jsx
-│   │   └── MyContent.jsx
-│   └── principal/
-│       ├── PrincipalDashboard.jsx
-│       ├── PendingApprovals.jsx
-│       └── AllContent.jsx
-├── services/             # ALL API calls live here — never in components
-│   ├── api.js            - Axios instance with auth interceptors
-│   ├── auth.service.js   - Login, logout, getCurrentUser
-│   ├── content.service.js - CRUD for content
-│   └── approval.service.js - Approve/reject actions
-└── utils/
-    ├── constants.js      - App-wide constants (roles, statuses, subjects)
-    ├── helpers.js        - Pure utility functions
-    └── mockData.js       - Mock backend data (520+ items for perf testing)
+This is a React + Vite app. Below are notes I kept while building it so
+whoever picks this up (or future me) doesn't have to reverse-engineer everything.
 
 
-2. AUTHENTICATION FLOW
+FOLDER LAYOUT
+-------------
+Pretty standard feature-based structure. Components are split into:
+  - ui/         generic stuff like Button, Modal, Badge — no business logic
+  - content/    things that know about the content domain (previews, badges, modals)
+  - layout/     the sidebar and the dashboard wrapper
+  - routing/    just ProtectedRoute
+
+Pages are split by role under pages/teacher/ and pages/principal/.
+The live broadcast page lives at pages/LivePage.jsx and is public (no auth).
+
+Services live in src/services/ and that's the only place API calls happen.
+Components never call fetch or axios directly — they go through a service.
+
+
+AUTH
+----
+Login hits authService.login() which validates against mock data right now.
+On success it stores the token in localStorage under "cbs_token" and the user
+object under "cbs_user". AuthContext reads that on load so sessions survive a refresh.
+
+The axios instance in api.js has a request interceptor that attaches the Bearer
+token automatically, so service functions don't have to think about headers.
+
+ProtectedRoute checks two things: is the user logged in, and do they have the
+right role for this route. If the role is wrong it redirects to their own dashboard
+instead of showing a 403 or something confusing.
+
+
+ROUTING
+-------
+Teacher routes:    /teacher/dashboard, /teacher/upload, /teacher/my-content
+Principal routes:  /principal/dashboard, /principal/pending, /principal/all-content
+Public:            /login, /live/:teacherId
+
+The live page takes a teacherId param and shows only that teacher's approved
+content that's currently within its scheduled time window.
+
+
+HOOKS
+-----
+I made two fetch hooks because the use cases are different:
+
+  useFetch   - fires automatically on mount, good for loading page data
+  useAsync   - you call execute() manually, good for form submissions and actions
+
+usePagination handles slicing an array client-side. It takes the full list and
+a page size, returns the current slice plus navigation helpers. Pagination resets
+to page 1 when you call reset() — I wire that up to filter/search changes.
+
+
+STATE
+-----
+No Redux, no Zustand. AuthContext for the global user state, everything else is
+local useState per page. It's simple enough that global state management would
+just add noise.
+
+React.memo on ContentPreview, StatusBadge, ScheduleBadge because those render
+inside big lists and the props rarely change.
+
+useMemo in AllContent for the filtered list — 500+ items, don't want to recompute
+on every keystroke if the deps haven't changed.
+
+
+MOCK DATA
+---------
+mockData.js has 6 hand-written items covering all the interesting cases (active,
+scheduled, expired, pending, approved, rejected) plus a loop that generates ~514
+more for pagination/performance testing.
+
+The mock data is a plain mutable array at module scope. Approve/reject/upload
+mutations happen directly on it, so changes persist for the browser session but
+reset on page reload. That's fine for a demo.
+
+To swap in a real backend: set VITE_API_URL in .env and replace the mock logic
+in each service file with real axios calls. The hooks and components don't need
+to change at all.
+
+
+LIVE PAGE
+---------
+Polls every 30 seconds (POLL_INTERVAL constant at the top of LivePage.jsx).
+Content rotates automatically based on each item's rotationDuration field.
+The rotation is just a setTimeout that advances the activeIndex — nothing fancy.
+Manual refresh button does a silent re-fetch (no full loading spinner).
+
+
+FILE UPLOADS
+------------
+Accepts JPG, PNG, GIF up to 10MB. Validated client-side before the service call.
+In mock mode, uploaded files get a blob URL for preview. In production you'd
+send multipart/form-data to a real endpoint and store the returned URL.
+
+
+DEMO CREDENTIALS
+----------------
+teacher@demo.com   / password   (Khushi Sharma)
+teacher2@demo.com  / password   (Ayush Verma)
+principal@demo.com / password   (Harsh Patel)
+
+Live page demo:  /live/u1  (Khushi's content)
+                 /live/u2  (Ayush's content)
+
+
+KNOWN SHORTCUTS / TODO
 ----------------------
-- User submits email/password on /login
-- authService.login() validates against mock data (swap for real API)
-- On success: JWT token stored in localStorage (TOKEN_KEY)
-- User object stored in localStorage (USER_KEY)
-- AuthContext provides user state globally via React Context
-- api.js interceptor automatically attaches Bearer token to all requests
-- On logout: both keys cleared, user state set to null
-- ProtectedRoute redirects unauthenticated users to /login
-- After login, redirects to the "from" location or role-based dashboard
-
-
-3. ROLE-BASED ROUTING
----------------------
-- ProtectedRoute accepts an optional `role` prop
-- If user.role !== required role → redirected to their own dashboard
-- Teacher routes: /teacher/dashboard, /teacher/upload, /teacher/my-content
-- Principal routes: /principal/dashboard, /principal/pending, /principal/all-content
-- Public route: /live/:teacherId (no auth required)
-- Sidebar renders different nav links based on user.role
-
-
-4. API INTEGRATION APPROACH
-----------------------------
-- All API calls are in src/services/ — NEVER directly in components
-- api.js is an axios instance with base URL from VITE_API_URL env var
-- Request interceptor attaches Authorization: Bearer <token>
-- Response interceptor normalizes error messages
-- To connect a real backend: update VITE_API_URL in .env and replace
-  mock logic in service files with real axios calls
-- Service functions return plain data (not axios response objects)
-- Components consume services via useFetch() or useAsync() hooks
-
-
-5. STATE MANAGEMENT APPROACH
------------------------------
-- No Redux or Zustand — kept intentionally simple
-- AuthContext: global auth state (user object, login/logout functions)
-- Local component state: loading, error, data per page
-- useFetch hook: encapsulates fetch lifecycle (loading/error/data + refetch)
-- useAsync hook: for imperative async operations (form submissions)
-- usePagination hook: client-side pagination with memoized slicing
-- React.memo used on ContentPreview, StatusBadge, ScheduleBadge to
-  prevent unnecessary re-renders in large lists
-
-
-6. PERFORMANCE OPTIMIZATIONS
------------------------------
-- Mock data includes 520+ items to simulate real load
-- usePagination slices data (20 items/page) — only renders visible rows
-- useMemo in AllContent for client-side filtering (avoids recomputing on unrelated renders)
-- React.memo on frequently-rendered list cell components
-- Images use loading="lazy" for deferred loading
-- ContentPreview handles broken image URLs gracefully with error state
-- Skeleton loaders shown during data fetch (no layout shift)
-
-
-7. ASSUMPTIONS
---------------
-- Backend will expose REST endpoints matching the service layer signatures
-- JWT token is stored in localStorage (acceptable for this scope;
-  httpOnly cookies preferred in production)
-- File uploads in production would use multipart/form-data to a real endpoint
-- The /live/:teacherId page polls every 30 seconds (configurable via POLL_INTERVAL)
-- Content rotation is UI-only — driven by rotationDuration field
+- Token is in localStorage. Fine for this scope, httpOnly cookie would be better
+  in production.
+- No real file storage. Blob URLs work for the demo but don't survive a refresh.
 - Schedule status (active/scheduled/expired) is computed client-side from
-  startTime/endTime fields
-- Mock data generates 520 items to satisfy the 500–1000 item performance requirement
-- No real file storage — uploaded files use Object URLs for preview in mock mode
-
-
-8. DEMO CREDENTIALS
--------------------
-Teacher:    teacher@demo.com  / password
-Teacher 2:  teacher2@demo.com / password
-Principal:  principal@demo.com / password
-
-Live page:  /live/u1  (Teacher Alice's active content)
-            /live/u2  (Teacher Bob's active content)
+  startTime/endTime. The server should probably own this in production.
+- No tests yet. The hooks and service functions are pure enough that unit tests
+  would be straightforward to add.

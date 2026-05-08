@@ -2,21 +2,30 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Radio, RefreshCw, Tv, Clock, BookOpen } from 'lucide-react';
 import { contentService } from '../services/content.service';
-import Spinner from '../components/ui/Spinner';
-import ErrorAlert from '../components/ui/ErrorAlert';
 import ScheduleBadge from '../components/content/ScheduleBadge';
 import { formatDate } from '../utils/helpers';
 
-const POLL_INTERVAL = 30000; // 30 seconds
+const POLL_INTERVAL = 30000;
+
+function LiveSpinner() {
+  return (
+    <div
+      className="animate-spin rounded-full border-2 h-10 w-10"
+      style={{ borderColor: '#3d3830', borderTopColor: '#d97706' }}
+      role="status"
+      aria-label="Loading"
+    />
+  );
+}
 
 export default function LivePage() {
   const { teacherId } = useParams();
-  const [content, setContent] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [content, setContent]         = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [lastRefresh, setLastRefresh] = useState(new Date());
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing]   = useState(false);
   const rotationRef = useRef(null);
 
   const fetchLive = useCallback(async (silent = false) => {
@@ -36,148 +45,160 @@ export default function LivePage() {
     }
   }, [teacherId]);
 
-  // Initial load
-  useEffect(() => {
-    fetchLive();
-  }, [fetchLive]);
-  // Auto-polling
+  useEffect(() => { fetchLive(); }, [fetchLive]);
+
   useEffect(() => {
     const interval = setInterval(() => fetchLive(true), POLL_INTERVAL);
     return () => clearInterval(interval);
   }, [fetchLive]);
 
-  // Content rotation
   useEffect(() => {
     if (content.length <= 1) return;
     const active = content[activeIndex];
     const duration = (active?.rotationDuration ?? 30) * 1000;
-
     rotationRef.current = setTimeout(() => {
       setActiveIndex((i) => (i + 1) % content.length);
     }, duration);
-
     return () => clearTimeout(rotationRef.current);
   }, [content, activeIndex]);
 
   const activeContent = content[activeIndex];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      {/* Header */}
-      <header className="border-b border-gray-800 px-6 py-4">
+    <div className="min-h-screen" style={{ background: 'var(--live-bg)', color: 'var(--live-text)', fontFamily: 'var(--font-geist)' }}>
+      <header style={{ borderBottom: '1px solid var(--live-border)', background: 'var(--live-surface)' }} className="px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-600 rounded-lg">
-              <Radio className="h-5 w-5 text-white" />
+            <div className="p-2 rounded-xl" style={{ background: '#2a2520' }}>
+              <Radio className="h-5 w-5" style={{ color: 'var(--live-amber)' }} />
             </div>
             <div>
-              <h1 className="font-bold text-lg">ContentBroadcast</h1>
-              <p className="text-xs text-gray-400">Live Educational Content</p>
+              <h1 className="font-bold text-lg" style={{ fontFamily: 'var(--font-oswald)', color: 'var(--live-text)' }}>
+                ContentBroadcast
+              </h1>
+              <p className="text-xs" style={{ color: 'var(--live-muted)' }}>Live Educational Content</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {content.length > 0 && (
-              <div className="flex items-center gap-1.5 text-xs text-green-400">
-                <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+              <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--live-sage)' }}>
+                <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: 'var(--live-sage)' }} />
                 LIVE
               </div>
             )}
             <button
               onClick={() => fetchLive(true)}
               disabled={refreshing}
-              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 text-xs transition-opacity disabled:opacity-40"
+              style={{ color: 'var(--live-muted)' }}
             >
               <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </button>
-            <span className="text-xs text-gray-500">
-              Updated {lastRefresh.toLocaleTimeString()}
+            <span className="text-xs" style={{ color: 'var(--live-muted)' }}>
+              {lastRefresh.toLocaleTimeString()}
             </span>
           </div>
         </div>
       </header>
 
-      {/* Main content */}
       <main className="max-w-5xl mx-auto px-6 py-10">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
-            <Spinner size="lg" className="border-gray-700 border-t-indigo-500" />
-            <p className="text-gray-400">Loading live content...</p>
+            <LiveSpinner />
+            <p style={{ color: 'var(--live-muted)' }}>Loading live content...</p>
           </div>
+
         ) : error ? (
-          <div className="max-w-md mx-auto mt-20">
-            <ErrorAlert message={error} onRetry={() => fetchLive()} />
+          <div className="max-w-md mx-auto mt-20 rounded-xl border p-5" style={{ background: 'var(--live-surface)', borderColor: '#7f1d1d' }}>
+            <p className="font-semibold text-red-400 mb-1">Something went wrong</p>
+            <p className="text-sm" style={{ color: 'var(--live-muted)' }}>{error}</p>
+            <button
+              onClick={() => fetchLive()}
+              className="mt-3 text-sm font-medium underline"
+              style={{ color: 'var(--live-amber)' }}
+            >
+              Try again
+            </button>
           </div>
+
         ) : content.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32">
-            <Tv className="h-16 w-16 text-gray-700 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-300">No content available</h2>
-            <p className="text-gray-500 mt-2 text-sm text-center max-w-sm">
+            <Tv className="h-14 w-14 mb-4" style={{ color: '#3d3830' }} />
+            <h2 className="text-xl font-semibold" style={{ fontFamily: 'var(--font-unna)', color: '#a09080' }}>
+              No content available
+            </h2>
+            <p className="mt-2 text-sm text-center max-w-sm" style={{ color: 'var(--live-muted)' }}>
               There is no active broadcast at this time. Check back later.
             </p>
-            <p className="text-xs text-gray-600 mt-4">Auto-refreshes every 30 seconds</p>
+            <p className="text-xs mt-4" style={{ color: '#3d3830' }}>Auto-refreshes every 30 seconds</p>
           </div>
+
         ) : (
           <div className="space-y-8">
-            {/* Active content display */}
             {activeContent && (
-              <div className="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl">
-                {/* Image */}
+              <div className="rounded-2xl overflow-hidden border shadow-2xl" style={{ background: 'var(--live-surface)', borderColor: 'var(--live-border)' }}>
                 <div className="relative">
                   <img
                     key={activeContent.id}
                     src={activeContent.fileUrl}
                     alt={activeContent.title}
                     className="w-full h-[420px] object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
+                    onError={(e) => { e.target.style.display = 'none'; }}
                   />
-                  {/* Overlay info */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+
+                  <div className="absolute bottom-0 left-0 right-0 p-6" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)' }}>
                     <div className="flex items-center gap-2 mb-2">
                       <ScheduleBadge startTime={activeContent.startTime} endTime={activeContent.endTime} />
-                      <span className="text-xs text-gray-300 bg-black/40 px-2 py-0.5 rounded-full">
+                      <span
+                        className="text-xs px-2 py-0.5 rounded-full"
+                        style={{ background: 'rgba(217,119,6,0.2)', color: 'var(--live-amber-lt)', border: '1px solid rgba(217,119,6,0.3)' }}
+                      >
                         {activeContent.subject}
                       </span>
                     </div>
-                    <h2 className="text-2xl font-bold text-white">{activeContent.title}</h2>
+                    <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'var(--font-unna)' }}>
+                      {activeContent.title}
+                    </h2>
                     {activeContent.description && (
-                      <p className="text-gray-300 text-sm mt-1">{activeContent.description}</p>
+                      <p className="text-sm mt-1" style={{ color: '#c4b8a8' }}>{activeContent.description}</p>
                     )}
                   </div>
 
-                  {/* Rotation indicator */}
                   {content.length > 1 && (
-                    <div className="absolute top-4 right-4 bg-black/60 rounded-full px-3 py-1 text-xs text-gray-300">
+                    <div
+                      className="absolute top-4 right-4 rounded-full px-3 py-1 text-xs"
+                      style={{ background: 'rgba(0,0,0,0.65)', color: '#c4b8a8' }}
+                    >
                       {activeIndex + 1} / {content.length}
                     </div>
                   )}
                 </div>
 
-                {/* Details bar */}
-                <div className="px-6 py-4 flex flex-wrap gap-4 text-sm text-gray-400 border-t border-gray-800">
+                <div
+                  className="px-6 py-4 flex flex-wrap gap-5 text-sm border-t"
+                  style={{ borderColor: 'var(--live-border)', color: 'var(--live-muted)' }}
+                >
                   <div className="flex items-center gap-1.5">
-                    <BookOpen className="h-4 w-4" />
+                    <BookOpen className="h-4 w-4" style={{ color: 'var(--live-amber)' }} />
                     <span>{activeContent.subject}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Clock className="h-4 w-4" />
+                    <Clock className="h-4 w-4" style={{ color: 'var(--live-amber)' }} />
                     <span>{formatDate(activeContent.startTime)} → {formatDate(activeContent.endTime)}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <RefreshCw className="h-4 w-4" />
+                    <RefreshCw className="h-4 w-4" style={{ color: 'var(--live-amber)' }} />
                     <span>Rotates every {activeContent.rotationDuration}s</span>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Content thumbnails */}
             {content.length > 1 && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                <h3 className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--live-muted)' }}>
                   All Active Content ({content.length})
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -185,24 +206,19 @@ export default function LivePage() {
                     <button
                       key={item.id}
                       onClick={() => setActiveIndex(idx)}
-                      className={`relative rounded-xl overflow-hidden border-2 transition-all ${
-                        idx === activeIndex
-                          ? 'border-indigo-500 ring-2 ring-indigo-500/30'
-                          : 'border-gray-700 hover:border-gray-500'
-                      }`}
+                      className="relative rounded-xl overflow-hidden border-2 transition-all"
+                      style={{
+                        borderColor: idx === activeIndex ? 'var(--live-amber)' : 'var(--live-border)',
+                        boxShadow: idx === activeIndex ? '0 0 0 3px rgba(217,119,6,0.2)' : 'none',
+                      }}
                     >
-                      <img
-                        src={item.fileUrl}
-                        alt={item.title}
-                        className="w-full h-24 object-cover"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      <img src={item.fileUrl} alt={item.title} className="w-full h-24 object-cover" loading="lazy" />
+                      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 60%)' }} />
                       <p className="absolute bottom-1.5 left-2 right-2 text-xs text-white font-medium truncate">
                         {item.title}
                       </p>
                       {idx === activeIndex && (
-                        <div className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                        <div className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full animate-pulse" style={{ background: 'var(--live-sage)' }} />
                       )}
                     </button>
                   ))}
