@@ -13,9 +13,9 @@ const schema = z.object({
 });
 
 const DEMO_ACCOUNTS = [
-  { label: 'Khushi Sharma',  role: 'Teacher',    email: 'teacher@demo.com',   password: 'password' },
+  { label: 'Harsh verma',  role: 'Teacher',    email: 'teacher@demo.com',   password: 'password' },
   { label: 'Ayush Verma',    role: 'Teacher',    email: 'teacher2@demo.com',  password: 'password' },
-  { label: 'Harsh Patel',    role: 'Principal',  email: 'principal@demo.com', password: 'password' },
+  { label: 'Khushboo madam ji',    role: 'Principal',  email: 'principal@demo.com', password: 'password' },
 ];
 
 const FEATURES = [
