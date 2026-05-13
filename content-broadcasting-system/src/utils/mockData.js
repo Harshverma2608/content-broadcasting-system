@@ -7,7 +7,7 @@ const future = (h) => new Date(now.getTime() + h * 3600000).toISOString();
 export const MOCK_USERS = [
   {
     id: 'u1',
-    name: 'Khushi Sharma',
+    name: 'Harsh Verma',
     email: 'teacher@demo.com',
     password: 'password',
     role: 'teacher',
@@ -23,7 +23,7 @@ export const MOCK_USERS = [
   },
   {
     id: 'u3',
-    name: 'Harsh Patel',
+    name: 'Khushboo Madam Ji',
     email: 'principal@demo.com',
     password: 'password',
     role: 'principal',
@@ -35,7 +35,7 @@ export let MOCK_CONTENT = [
   {
     id: 'c1',
     teacherId: 'u1',
-    teacherName: 'Khushi Sharma',
+    teacherName: 'Harsh Verma',
     title: 'Introduction to Algebra',
     subject: 'Mathematics',
     description: 'Basic algebra concepts for grade 8 students.',
@@ -52,7 +52,7 @@ export let MOCK_CONTENT = [
   {
     id: 'c2',
     teacherId: 'u1',
-    teacherName: 'Khushi Sharma',
+    teacherName: 'Harsh Verma',
     title: 'Photosynthesis Explained',
     subject: 'Biology',
     description: 'How plants make food using sunlight.',
@@ -69,7 +69,7 @@ export let MOCK_CONTENT = [
   {
     id: 'c3',
     teacherId: 'u1',
-    teacherName: 'Khushi Sharma',
+    teacherName: 'Harsh Verma',
     title: 'World War II Overview',
     subject: 'History',
     description: 'Key events of World War II.',
@@ -120,7 +120,7 @@ export let MOCK_CONTENT = [
   {
     id: 'c6',
     teacherId: 'u1',
-    teacherName: 'Khushi Sharma',
+    teacherName: 'Harsh Verma',
     title: "Shakespeare's Hamlet",
     subject: 'English',
     description: 'Analysis of Hamlet Act 1.',
@@ -140,7 +140,7 @@ for (let i = 7; i <= 520; i++) {
   const statuses = ['pending', 'approved', 'rejected'];
   const subjects = ['Mathematics', 'Science', 'English', 'History', 'Physics'];
   const teachers = [
-    { id: 'u1', name: 'Khushi Sharma' },
+    { id: 'u1', name: 'Harsh Verma' },
     { id: 'u2', name: 'Ayush Verma' },
   ];
   const t = teachers[i % 2];
